@@ -33,22 +33,22 @@ class Login:
         self.loginLabel.pack(anchor="center", pady="100", side="top")
         
         #Entry variables
-        self.usernameEntryValue = StringVar()
-        self.passwordEntryValue = StringVar()
+        self.L_usernameEntryValue = StringVar()
+        self.L_passwordEntryValue = StringVar()
 
-        self.username = ttk.Label(self.loginFrame)
-        self.username.configure(text="Username")
-        self.username.place(anchor="nw", relwidth="0.17", relx="0.0", x="110", y="180")
-        self.usernameEntry = ttk.Entry(self.loginFrame,textvariable=self.usernameEntryValue)
-        self.usernameEntry.configure(width="40")
-        self.usernameEntry.place(anchor="nw", x="110", y="205")
+        self.L_username = ttk.Label(self.loginFrame)
+        self.L_username.configure(text="Username")
+        self.L_username.place(anchor="nw", relwidth="0.17", relx="0.0", x="110", y="180")
+        self.L_usernameEntry = ttk.Entry(self.loginFrame,textvariable=self.L_usernameEntryValue)
+        self.L_usernameEntry.configure(width="40")
+        self.L_usernameEntry.place(anchor="nw", x="110", y="205")
 
-        self.password = ttk.Label(self.loginFrame)
-        self.password.configure(text="Password")
-        self.password.place(anchor="nw", relwidth="0.17", relx="0.0", x="110", y="240")
-        self.passwordEntry = ttk.Entry(self.loginFrame, show="•",textvariable=self.passwordEntryValue)
-        self.passwordEntry.configure(width="40")
-        self.passwordEntry.place(anchor="nw", x="110", y="265")
+        self.L_password = ttk.Label(self.loginFrame)
+        self.L_password.configure(text="Password")
+        self.L_password.place(anchor="nw", relwidth="0.17", relx="0.0", x="110", y="240")
+        self.L_passwordEntry = ttk.Entry(self.loginFrame, show="•",textvariable=self.L_passwordEntryValue)
+        self.L_passwordEntry.configure(width="40")
+        self.L_passwordEntry.place(anchor="nw", x="110", y="265")
 
         self.loginBtn = ttk.Button(self.loginFrame, command=self.login)
         self.loginBtn.configure(text="Login", width="40")
@@ -99,30 +99,25 @@ class Login:
         self.S_confirmPasswordEntry.configure(width="40")
         self.S_confirmPasswordEntry.place(anchor="nw", x="110", y="325")
 
-        self.S_signupBtn = ttk.Button(self.signupFrame, command=self.signup)
-        self.S_signupBtn.configure(text="Sign up", width="40")
-        self.S_signupBtn.place(anchor="nw", x="108", y="365")
+        self.signupBtn = ttk.Button(self.signupFrame, command=self.signup)
+        self.signupBtn.configure(text="Sign up", width="40")
+        self.signupBtn.place(anchor="nw", x="108", y="365")
 
-        self.S_loginPageBtn = ttk.Button(self.signupFrame, command=self.openLoginPage)
-        self.S_loginPageBtn.configure(text="Login page", width="40")
-        self.S_loginPageBtn.place(anchor="nw", x="108", y="405")
+        self.loginPageBtn = ttk.Button(self.signupFrame, command=self.openLoginPage)
+        self.loginPageBtn.configure(text="Login page", width="40")
+        self.loginPageBtn.place(anchor="nw", x="108", y="405")
 
-        #hide signup frame
+        #hide signup frame initially
         self.signupFrame.place_forget()
 
     def run(self):
         self.root.mainloop()
 
     def login(self):
-        username = self.usernameEntryValue.get()
-        password = self.passwordEntryValue.get()
-        if username == "" and password == "":
-            messagebox.showinfo("Login", "Login Successful!")
-            self.root.destroy()
-            root = Tk()
-            GUI.App(root).run()
-        else:
-            messagebox.showerror("Login", "Invalid username/password!")
+        messagebox.showinfo("Login", "Login Successful!")
+        self.root.destroy()
+        root = Tk()
+        GUI.App(root).run()
 
     def signup(self):
         messagebox.showinfo("Sign up", "Sign up Successful!")
