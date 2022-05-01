@@ -7,17 +7,23 @@ from database import *
 from utils import *
 
 class App:
-    def __init__(self, root=None):
+    def __init__(self, root,startscreen=None):
+        self.startscreen = startscreen
         self.root = root
         self.root.title("Product management")
         self.root.geometry("1004x650")
         self.root.resizable(False, False)
+        self.root.protocol("WM_DELETE_WINDOW", self.onClose)
         self.width,self.height = 1000,560
         self.productList = {}
         self.billList = {}
         self.selectedItemId = -1
         self.selectedBillId = -1
         self.notebook = ttk.Notebook(self.root)
+
+        #Logout button
+        self.logoutBtn = Button(self.root, text="Logout",font=("Arial",10,"bold"),bd=3,width=17, command=self.logout)
+        self.logoutBtn.place(x=self.width-148,y=2)
 
         #Top frames
         self.productFrame = Frame(self.notebook)
@@ -51,7 +57,7 @@ class App:
         self.productDescriptionEntryValue = StringVar()
 
         self.productInfoFrame.configure(
-            borderwidth="4", height="160", relief="ridge", width=self.width
+            borderwidth="3", height="160", relief="groove", width=self.width
         )
         self.productInfoFrame.grid(column="0", row="0",pady=(5,10))
         self.productInfoFrame.grid_propagate(0)
@@ -64,7 +70,7 @@ class App:
         )
         self.ProductIdLabel.grid(column="0", row="0", sticky="w")
 
-        self.productIdEntry = Entry(self.productInfoFrame,font=("Arial",12,"bold"),bd=3,width="20", textvariable=self.productIdEntryValue)
+        self.productIdEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5",font=("Arial",12,"bold"),bd=2,width="20", textvariable=self.productIdEntryValue)
         self.productIdEntry.grid(padx="10",column="1", row="0", sticky="w")
 
         self.productNameLabel = Label(self.productInfoFrame)
@@ -75,7 +81,7 @@ class App:
         )
         self.productNameLabel.grid(column="2", row="0", sticky="w")
 
-        self.productNameEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="27",textvariable=self.productNameEntryValue)
+        self.productNameEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="27",textvariable=self.productNameEntryValue)
         self.productNameEntry.grid(column="3", padx="10", row="0", sticky="w")
 
         self.productCategoryLabel = Label(self.productInfoFrame)
@@ -86,7 +92,7 @@ class App:
         )
         self.productCategoryLabel.grid(column="4", row="0", sticky="w")
 
-        self.productCategoryEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="18",textvariable=self.productCategoryEntryValue)
+        self.productCategoryEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="18",textvariable=self.productCategoryEntryValue)
         self.productCategoryEntry.grid(column="5", padx="10", row="0", sticky="w")
 
         self.productPriceLabel = Label(self.productInfoFrame)
@@ -97,7 +103,7 @@ class App:
         )
         self.productPriceLabel.grid(column="0", pady="5", row="1", sticky="w")
 
-        self.productPriceEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="20",textvariable=self.productPriceEntryValue)
+        self.productPriceEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="20",textvariable=self.productPriceEntryValue)
         self.productPriceEntry.grid(column="1", padx="10", pady="5", row="1", sticky="w")
 
         self.productSupplierLabel = Label(self.productInfoFrame)
@@ -108,7 +114,7 @@ class App:
         )
         self.productSupplierLabel.grid(column="2", pady="5", row="1", sticky="w")
 
-        self.productSupplierEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="27",textvariable=self.productSupplierEntryValue)
+        self.productSupplierEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="27",textvariable=self.productSupplierEntryValue)
         self.productSupplierEntry.grid(column="3", padx="10", pady="5", row="1", sticky="w")
 
         self.productQuantityLabel = Label(self.productInfoFrame)
@@ -119,7 +125,7 @@ class App:
         )
         self.productQuantityLabel.grid(column="4", pady="5", row="1", sticky="w")
 
-        self.productQuantityEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="18",textvariable=self.productQuantityEntryValue)
+        self.productQuantityEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="18",textvariable=self.productQuantityEntryValue)
         self.productQuantityEntry.grid(column="5", padx="10", pady="5", row="1",sticky="w")
 
         self.productDescriptionLabel = Label(self.productInfoFrame)
@@ -130,7 +136,7 @@ class App:
         )
         self.productDescriptionLabel.grid(column="0", row="2", sticky="w")
 
-        self.productDescriptionEntry = Entry(self.productInfoFrame, font=("Arial",12,"bold"),bd=3,width="93",textvariable=self.productDescriptionEntryValue)
+        self.productDescriptionEntry = Entry(self.productInfoFrame,readonlybackground="#E7E6E5", font=("Arial",12,"bold"),bd=2,width="93",textvariable=self.productDescriptionEntryValue)
         self.productDescriptionEntry.grid(
             column="1", columnspan="5", padx="10", row="2", sticky="w"
         )
@@ -150,7 +156,7 @@ class App:
         self.selectedPriceOrder = self.priceOrders[0]
 
         self.searchFrame.configure(
-            borderwidth="4", height="110", relief="ridge", width=self.width
+            borderwidth="3", height="110", relief="groove", width=self.width
         )
         self.searchFrame.grid(column="0", row="1")
         self.searchFrame.grid_propagate(0)
@@ -159,7 +165,7 @@ class App:
         self.searchLabel.configure(font="{Arial} 11 {bold}", text="Enter a name:")
         self.searchLabel.grid(column="0", padx="10", pady="10", row="0")
 
-        self.searchEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=3,width="20",textvariable=self.searchEntryValue)
+        self.searchEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=2,width="20",textvariable=self.searchEntryValue)
         self.searchEntry.grid(column="1", row="0", sticky="w")
 
         self.searchCategoryBox = ttk.Combobox(self.searchFrame, textvariable=self.searchCategoryBoxValue, font=("Arial",11,"bold"))
@@ -181,14 +187,14 @@ class App:
         self.minPriceLabel.configure(font="{Arial} 11 {bold}", text="Min price:")
         self.minPriceLabel.grid(column="0", padx="10", pady="5", row="1", sticky="w")
 
-        self.minPriceEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=3,width="15",textvariable=self.minPriceEntryValue)
+        self.minPriceEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=2,width="15",textvariable=self.minPriceEntryValue)
         self.minPriceEntry.grid(column="1", row="1", sticky="w")
         
         self.maxPriceLabel = Label(self.searchFrame)
         self.maxPriceLabel.configure(font="{Arial} 11 {bold}", text="Max price:")
         self.maxPriceLabel.grid(column="2", padx="20", pady="5", row="1", sticky="w")
 
-        self.maxPriceEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=3,width="15",textvariable=self.maxPriceEntryValue)
+        self.maxPriceEntry = Entry(self.searchFrame, font=("Arial",12,"bold"),bd=2,width="15",textvariable=self.maxPriceEntryValue)
         self.maxPriceEntry.grid(column="3", row="1", sticky="w")
 
         self.findBtn = Button(self.searchFrame,text="Find", width="20", font=("font", 10, "bold"), bd=4, command=self.displaySearchResults)
@@ -200,15 +206,15 @@ class App:
 
         #------------------table frame--------------
         #scrollbar for table
-        self.tableScrollbar = Scrollbar(self.tableFrame,orient="vertical")
-        self.tableScrollbar.pack(fill="y", side="right")
+        self.tableSb = Scrollbar(self.tableFrame,orient="vertical")
+        self.tableSb.pack(fill="y", side="right")
 
         #treeview table
         self.trv = ttk.Treeview(self.tableFrame, height = 14,columns=(1,2,3,4,5,6),show="headings")
         self.trv.pack(fill="x", side="top")
         self.trv.bind('<ButtonRelease-1>', self.displayProduct)
-        self.trv.config(yscrollcommand=self.tableScrollbar.set)
-        self.tableScrollbar.config(command=self.trv.yview)
+        self.trv.config(yscrollcommand=self.tableSb.set)
+        self.tableSb.config(command=self.trv.yview)
 
         self.trv.heading(1, text="Product ID")
         self.trv.column(1, anchor="center", minwidth=90, width=100)
@@ -224,7 +230,7 @@ class App:
         self.trv.column(6, anchor="center", minwidth=0, width=140)
 
         self.tableFrame.configure(
-            borderwidth="4", height="300", relief="ridge", width=self.width
+            borderwidth="3", height="300", relief="groove", width=self.width
         )
         self.tableFrame.grid(column="0", row="2")
         self.tableFrame.pack_propagate(0)
@@ -237,7 +243,7 @@ class App:
         self.textDeleteBtn = StringVar()
         self.textDeleteBtn.set("Delete product")
 
-        self.buttonsFrame.configure(borderwidth="4", height="40", relief="ridge", width=self.width)
+        self.buttonsFrame.configure(borderwidth="3", height="40", relief="groove", width=self.width)
         self.buttonsFrame.grid(column="0", row="3")
         self.buttonsFrame.grid_propagate(0)
 
@@ -259,11 +265,11 @@ class App:
 
         # ------------------Bill Window ------------------
 
-        self.billInfoFrame = Frame(self.billFrame)
+        self.billInfoFrame = LabelFrame(self.billFrame, text="Bill information")
         self.billInfoFrame.configure(
-            borderwidth="4", height="140", relief="ridge", width="1000"
+            borderwidth="3", height="160", relief="groove", width="1000"
         )
-        self.billInfoFrame.grid(column="0", row="0")
+        self.billInfoFrame.grid(column="0", row="0",pady=(5,10))
         self.billInfoFrame.grid_propagate(0)
 
         #define variables
@@ -282,8 +288,8 @@ class App:
         )
         self.billIdLabel.grid(column="0", row="0", sticky="w")
 
-        self.billIdEntry = Entry(self.billInfoFrame, textvariable=self.billIdEntryValue)
-        self.billIdEntry.configure(font=("Arial",12,"bold"),bd=3, justify="left",width="28")
+        self.billIdEntry = Entry(self.billInfoFrame,readonlybackground="#E7E6E5", textvariable=self.billIdEntryValue)
+        self.billIdEntry.configure(font=("Arial",12,"bold"),bd=2, justify="left",width="28")
         self.billIdEntry.grid(column="1", row="0", sticky="w")
 
         self.billDateLabel = Label(self.billInfoFrame)
@@ -295,8 +301,8 @@ class App:
         )
         self.billDateLabel.grid(column="2", row="0", sticky="w")
 
-        self.billDateEntry = Entry(self.billInfoFrame, textvariable=self.billDateEntryValue)
-        self.billDateEntry.configure(font=("Arial",12,"bold"),bd=3, justify="left", width="30")
+        self.billDateEntry = Entry(self.billInfoFrame,readonlybackground="#E7E6E5", textvariable=self.billDateEntryValue)
+        self.billDateEntry.configure(font=("Arial",12,"bold"),bd=2, justify="left", width="30")
         self.billDateEntry.grid(column="3", padx="10", row="0", sticky="w")
         self.customerNameLabel = Label(self.billInfoFrame)
         self.customerNameLabel.configure(
@@ -306,8 +312,8 @@ class App:
             text="Customer name:",
         )
         self.customerNameLabel.grid(column="0", pady="5", row="1", sticky="w")
-        self.customerNameEntry = Entry(self.billInfoFrame, textvariable=self.customerNameEntryValue)
-        self.customerNameEntry.configure(font=("Arial",12,"bold"),bd=3, justify="left", width="28")
+        self.customerNameEntry = Entry(self.billInfoFrame,readonlybackground="#E7E6E5", textvariable=self.customerNameEntryValue)
+        self.customerNameEntry.configure(font=("Arial",12,"bold"),bd=2, justify="left", width="28")
         self.customerNameEntry.grid(column="1",padx=(0,30), pady="5", row="1", sticky="w")
 
         self.customerPhoneLabel = Label(self.billInfoFrame)
@@ -318,9 +324,9 @@ class App:
             text="Customer phone number:",
         )
         self.customerPhoneLabel.grid(column="2", pady="5", row="1", sticky="w")
-        self.customerPhoneEntry = Entry(self.billInfoFrame, textvariable=self.customerPhoneEntryValue)
+        self.customerPhoneEntry = Entry(self.billInfoFrame,readonlybackground="#E7E6E5", textvariable=self.customerPhoneEntryValue)
         self.customerPhoneEntry.configure(
-            font=("Arial",12,"bold"),bd=3, justify="left", width="30"
+            font=("Arial",12,"bold"),bd=2, justify="left", width="30"
         )
         self.customerPhoneEntry.grid(
             column="3", padx="10", pady="5", row="1", sticky="w"
@@ -334,15 +340,15 @@ class App:
         )
         self.customerAddressLabel.grid(column="0", row="2", sticky="w")
 
-        self.customerAddressEntry = Entry(self.billInfoFrame, textvariable=self.customerAddressEntryValue)
+        self.customerAddressEntry = Entry(self.billInfoFrame,readonlybackground="#E7E6E5", textvariable=self.customerAddressEntryValue)
         self.customerAddressEntry.configure(
-            font=("Arial",12,"bold"),bd=3, justify="left", width="88"
+            font=("Arial",12,"bold"),bd=2, justify="left", width="88"
         )
         self.customerAddressEntry.grid(column="1", columnspan="3", row="2", sticky="w")
 
         # ------------------Bill Table frame ------------------
         self.billTableFrame = Frame(self.billFrame)
-        self.billTableFrame.configure(height="405", width="1000")
+        self.billTableFrame.configure(height="370", width="1000")
         self.billTableFrame.grid(column="0", row="2")
         self.billTableFrame.grid_propagate(0)
 
@@ -351,12 +357,12 @@ class App:
         self.rightFrame = Frame(self.billTableFrame)
 
         self.leftFrame.configure(
-            borderwidth="4", height="405", relief="ridge", width="600"
+            borderwidth="3", height="370", relief="groove", width="600"
         )
         self.leftFrame.grid(column="0", row="0", sticky="w")
         self.leftFrame.pack_propagate(0)
         self.rightFrame.configure(
-            borderwidth="4", height="405", relief="ridge", width="400"
+            borderwidth="3", height="370", relief="groove", width="400"
         )
         self.rightFrame.grid(column="1", row="0", sticky="e")
         self.rightFrame.pack_propagate(0)
@@ -369,7 +375,7 @@ class App:
         self.searchBillIdLabel.configure(borderwidth="10", font="{Arial} 12 {bold}", text="Enter Bill ID:")
         self.searchBillIdLabel.grid(column="0", pady="5", row="0", sticky="w")
         self.searchBillIdEntry = Entry(self.billSearchFrame, textvariable=self.searchBillIdEntryValue)
-        self.searchBillIdEntry.configure(font=("Arial",12,"bold"),bd=3, justify="left", width="27")
+        self.searchBillIdEntry.configure(font=("Arial",12,"bold"),bd=2, justify="left", width="27")
         self.searchBillIdEntry.grid(column="1", row="0", sticky="w")
         self.billSearchBtn = Button(self.billSearchFrame, font=("font", 10, "bold"), bd=4, command=self.displayBillSearchResults)
         self.billSearchBtn.configure(text="Find", width="20")
@@ -422,12 +428,12 @@ class App:
         self.billMenuFrame_rightFrame = Frame(self.billMenuFrame)
 
         self.billMenuFrame_leftFrame.configure(
-            borderwidth="4", height="80", relief="ridge", width="500"
+            borderwidth="3", height="80", relief="groove", width="500"
         )
         self.billMenuFrame_leftFrame.grid(column="0", row="0", sticky="w")
         self.billMenuFrame_leftFrame.grid_propagate(0)
         self.billMenuFrame_rightFrame.configure(
-            borderwidth="4", height="80", relief="ridge", width="500"
+            borderwidth="3", height="80", relief="groove", width="500"
         )
         self.billMenuFrame_rightFrame.grid(column="1", row="0", sticky="e")
         self.billMenuFrame_rightFrame.grid_propagate(0)
@@ -455,20 +461,20 @@ class App:
 
         self.billProductIdLabel = ttk.Label(self.billMenuFrame_rightFrame)
         self.billProductIdLabel.configure(font="{Arial} 12 {bold}", text="Product Id: ")
-        self.billProductIdLabel.grid(column="0", padx="5", pady="5", row="0", sticky="w")
-        self.billProductIdEntry = Entry(self.billMenuFrame_rightFrame,font=("Arial",12,"bold"),bd=3)
+        self.billProductIdLabel.grid(column="0", padx="5", pady=(5,2), row="0", sticky="w")
+        self.billProductIdEntry = Entry(self.billMenuFrame_rightFrame,font=("Arial",12,"bold"),bd=2)
         self.billProductIdEntry.configure(width="20",textvariable=self.billProductIdEntryValue)
-        self.billProductIdEntry.grid(column="1", row="0", sticky="w",pady=5)
+        self.billProductIdEntry.grid(column="1", row="0", sticky="w", pady=(5,2))
 
         self.addProductBillBtn = Button(self.billMenuFrame_rightFrame, font=("font", 10, "bold"), bd=3, padx=10, command=self.addProductToBill)
         self.addProductBillBtn.configure(text="Add product", width="16")
-        self.addProductBillBtn.grid(column="3", row="0", sticky="w",padx="20")
+        self.addProductBillBtn.grid(column="3", row="0", sticky="w",padx="20", pady=(5,2))
 
         self.billProductQuantity = ttk.Label(self.billMenuFrame_rightFrame)
         self.billProductQuantity.configure(font="{Arial} 12 {bold}", text="Quantity:")
         self.billProductQuantity.grid(column="0", padx="5", pady="5", row="1", sticky="w")
 
-        self.billProductQuantityEntry = Entry(self.billMenuFrame_rightFrame,font=("Arial",12,"bold"),bd=3)
+        self.billProductQuantityEntry = Entry(self.billMenuFrame_rightFrame,font=("Arial",12,"bold"),bd=2)
         self.billProductQuantityEntry.configure(width="20",textvariable=self.billProductQuantityEntryValue)
         self.billProductQuantityEntry.grid(column="1", row="1", sticky="w")
 
@@ -483,12 +489,21 @@ class App:
     def run(self):
         self.root.mainloop()
 
+    def logout(self):
+        self.root.destroy()
+        if self.startscreen is not None: 
+            self.startscreen.deiconify()
+
+    def onClose(self):
+        self.root.destroy()
+        if self.startscreen is not None: 
+            self.startscreen.destroy()
+
     def displayProduct(self, event):
         curItem = self.trv.focus()
         if (curItem != ""):
             self.selectedItemId = self.trv.item(curItem)["values"][0]
             product = self.productList[self.selectedItemId]
-            # print(self.selectedItemId)
             self.productIdEntryValue.set(product.getId())
             self.productNameEntryValue.set(product.getName())
             self.productQuantityEntryValue.set(product.getQuantity())
@@ -677,7 +692,6 @@ class App:
         res = self.getBillSearchField()
         data = getBillSearchResults(res)
         self.clearBillTable()
-        # self.initBill()
         for item in data:
             bill = Bill(item[0],item[1],item[2],item[3],item[4])
             bill.setListProduct(item[5])
@@ -696,7 +710,7 @@ class App:
 
     def clearBillTable(self):
         self.selectedBillId = -1
-        self.setState("normal","product")
+        self.setState("normal","bill")
         self.textDeleteBillBtn.set("Delete bill")
         self.textEditBillBtn.set("Edit bill")
         self.resultTableTrv.delete(*self.resultTableTrv.get_children())
@@ -829,4 +843,3 @@ class App:
 if __name__ == "__main__":
     root = Tk()
     App(root).run()
-

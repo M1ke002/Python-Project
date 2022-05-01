@@ -60,10 +60,8 @@ def getSearchResults(list):
         query += "Product.Price DESC"
     else:
         query += "Product.Price ASC"
-    # print(query)
     myCursor.execute(query)
     result = myCursor.fetchall()
-    # print(result)
     myCursor.close()
     return result
 
@@ -127,7 +125,8 @@ def deductProductDB(productId,quantity):
     myCursor = mydb.cursor()
     myCursor.execute("SELECT Product.nameProduct, Product.Price, Product.Quantity FROM Product WHERE Product.idProduct = %s", (productId,))
     result = myCursor.fetchall()
-    productName,productPrice,productQuantity = result[0][0],result[0][1],result[0][2]
+    if len(result) > 0:
+        productName,productPrice,productQuantity = result[0][0],result[0][1],result[0][2]
     if (len(result) == 0 or int(quantity) > productQuantity):
         myCursor.close()
         return None
@@ -196,6 +195,13 @@ def updateBillProduct(billId,productId,quantity):
 def removeBillProduct(billId,productId):
     mydb = connectDatabase()
     myCursor = mydb.cursor()
+    #update the quantity in product
+    myCursor.execute("SELECT Product_idProduct, Product_quantity FROM Invoice_Detail WHERE Invoice_Detail.Invoice_idInvoice = %s AND Invoice_Detail.Product_idProduct = %s", (billId,productId))
+    result = myCursor.fetchall()
+    if len(result) > 0:
+        quantity = result[0][1]
+        myCursor.execute("UPDATE Product SET Product.Quantity = Product.Quantity + %s WHERE Product.idProduct = %s", (quantity,productId))
+    #remove the product from the bill
     myCursor.execute("DELETE FROM Invoice_Detail WHERE Invoice_Detail.Invoice_idInvoice = %s AND Invoice_Detail.Product_idProduct = %s", (billId,productId))
     mydb.commit()
     myCursor.close()

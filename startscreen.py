@@ -115,9 +115,9 @@ class Login:
 
     def login(self):
         messagebox.showinfo("Login", "Login Successful!")
-        self.root.destroy()
-        root = Tk()
-        GUI.App(root).run()
+        self.root.withdraw()
+        mainWindow = Toplevel(self.root)
+        GUI.App(mainWindow,self.root).run()
 
     def signup(self):
         messagebox.showinfo("Sign up", "Sign up Successful!")
