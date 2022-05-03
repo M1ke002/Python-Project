@@ -1,0 +1,12 @@
+Bill Id: 1
+Date: 2022-02-14
+Customer name: Mit
+
+----------------------------------------------
+Product                 Quantity        Price
+----------------------------------------------
+Dalla Dining Chairs      1                160
+Farina Leather Sofa      3                300
+
+Total price:                             1060
+

@@ -201,9 +201,10 @@ def removeBillProduct(billId,productId):
     if len(result) > 0:
         quantity = result[0][1]
         myCursor.execute("UPDATE Product SET Product.Quantity = Product.Quantity + %s WHERE Product.idProduct = %s", (quantity,productId))
-    #remove the product from the bill
-    myCursor.execute("DELETE FROM Invoice_Detail WHERE Invoice_Detail.Invoice_idInvoice = %s AND Invoice_Detail.Product_idProduct = %s", (billId,productId))
-    mydb.commit()
+        #remove the product from the bill
+        myCursor.execute("DELETE FROM Invoice_Detail WHERE Invoice_Detail.Invoice_idInvoice = %s AND Invoice_Detail.Product_idProduct = %s", (billId,productId))
+        mydb.commit()
+    # else: print("Not found")
     myCursor.close()
 
 def addBillDB(bill):

@@ -5,6 +5,7 @@ from bill import *
 from product import *
 from database import *
 from utils import *
+import os
 
 class App:
     def __init__(self, root,startscreen=None):
@@ -99,7 +100,7 @@ class App:
         self.productPriceLabel.configure(
             borderwidth="10",
             font="{Arial} 11 {bold}",
-            text="Price:",
+            text="Price ($):",
         )
         self.productPriceLabel.grid(column="0", pady="5", row="1", sticky="w")
 
@@ -416,6 +417,10 @@ class App:
         self.billSb.configure(command=self.billText.yview)
         self.initBill()
 
+        self.generateBillBtn = Button(self.rightFrame, font=("font", 10, "bold"), command=self.generateBill)
+        self.generateBillBtn.configure(text="Generate bill", width="20")
+        self.generateBillBtn.pack(side="bottom",fill="x")
+
 
         # ------------------Bill menu frame ------------------
         self.billMenuFrame = Frame(self.billFrame)
@@ -455,9 +460,9 @@ class App:
         self.deleteBillBtn = Button(self.billMenuFrame_leftFrame, font=("font", 10, "bold"), bd=4, command=self.deleteBill)
         self.deleteBillBtn.configure(textvariable=self.textDeleteBillBtn,width=11)
         self.deleteBillBtn.grid(column="2", padx="10", pady="19", row="0")
-        self.printBillBtn = Button(self.billMenuFrame_leftFrame, font=("font", 10, "bold"), bd=4, command=self.clearBillFields)
-        self.printBillBtn.configure(text="Clear bill",width=11)
-        self.printBillBtn.grid(column="3", padx="10", pady="19", row="0")
+        self.clearBillBtn = Button(self.billMenuFrame_leftFrame, font=("font", 10, "bold"), bd=4, command=self.clearBillFields)
+        self.clearBillBtn.configure(text="Clear bill",width=11)
+        self.clearBillBtn.grid(column="3", padx="10", pady="19", row="0")
 
         self.billProductIdLabel = ttk.Label(self.billMenuFrame_rightFrame)
         self.billProductIdLabel.configure(font="{Arial} 12 {bold}", text="Product Id: ")
@@ -516,12 +521,15 @@ class App:
             self.textEditBtn.set("Edit product")
 
     def displaySearchOptions(self):
-        #get the categories from db
-        self.categories = getCategories()
-        self.categories.insert(0,"All categories")
-        #Combobox
-        self.searchCategoryBox["values"] = self.categories
-        self.priceOrderBox["values"] = self.priceOrders
+        try:
+            #get the categories from db
+            self.categories = getCategories()
+            self.categories.insert(0,"All categories")
+            #Combobox
+            self.searchCategoryBox["values"] = self.categories
+            self.priceOrderBox["values"] = self.priceOrders
+        except Exception as e:
+            print(e)
 
     def setState(self, mode, type):
         if type == "product":
@@ -587,6 +595,7 @@ class App:
         self.searchPriceOrderBoxValue.set(self.priceOrders[0])
 
     def addProduct(self):
+        try:
             data = self.getProductFields()
             if (verifyProductInfo(data)):
                 if (addProductDB(data)):
@@ -596,7 +605,10 @@ class App:
                     self.textEditBtn.set("Edit product")
                 else: messagebox.showerror("Error","Id already exists")
             else: messagebox.showerror("Error","Invalid Product")
-                
+        except Exception as e:
+            print(e)
+
+
     def editProduct(self):
         if (self.selectedItemId == -1):
             messagebox.showerror("Error","Select a product first!")
@@ -606,30 +618,36 @@ class App:
             self.textEditBtn.set("Save")
             self.textDeleteBtn.set("Cancel")
         else:
-            data = self.getProductFields()
-            if (verifyProductInfo(data)):
-                if editProductDB(self.selectedItemId,data):
-                    self.displaySearchResults()
-                    self.displaySearchOptions()
-                    self.setState("readonly","product")
-                    self.textDeleteBtn.set("Delete product")
-                    self.textEditBtn.set("Edit product")
-                else: messagebox.showerror("Error","Id already exists")
-            else: messagebox.showerror("Error","Invalid Product")        
+            try:
+                data = self.getProductFields()
+                if (verifyProductInfo(data)):
+                    if editProductDB(self.selectedItemId,data):
+                        self.displaySearchResults()
+                        self.displaySearchOptions()
+                        self.setState("readonly","product")
+                        self.textDeleteBtn.set("Delete product")
+                        self.textEditBtn.set("Edit product")
+                    else: messagebox.showerror("Error","Id already exists")
+                else: messagebox.showerror("Error","Invalid Product")   
+            except Exception as e:
+                print(e)     
 
     def deleteProduct(self):
         if (self.selectedItemId == -1):
             messagebox.showerror("Error","Select a product first!")
             return
         if self.textDeleteBtn.get() == "Delete product":
-            data = self.getProductFields()
-            if (verifyProductInfo(data)):
-                #delete in db
-                deleteProductDB(self.selectedItemId)
-                self.displaySearchResults()
-                self.displaySearchOptions()
-                self.setState("normal","product")
-            else: messagebox.showerror("Error","Invalid Product")
+            try:
+                data = self.getProductFields()
+                if (verifyProductInfo(data)):
+                    #delete in db
+                    deleteProductDB(self.selectedItemId)
+                    self.displaySearchResults()
+                    self.displaySearchOptions()
+                    self.setState("normal","product")
+                else: messagebox.showerror("Error","Invalid Product")
+            except Exception as e:
+                print(e)
         else:
             self.displayProduct(None)
             self.textDeleteBtn.set("Delete product")
@@ -639,25 +657,31 @@ class App:
     def displaySearchResults(self):
         list = self.getSearchFields()
         if (verifySearchFields(list)):
-            #Update selectedCategory and selectedPriceOrder
-            self.selectedCategory = list["category"]
-            self.selectedPriceOrder = list["priceOrder"]
-            data = getSearchResults(list)
-            self.clearProductTable()
+            try:
+                #Update selectedCategory and selectedPriceOrder
+                self.selectedCategory = list["category"]
+                self.selectedPriceOrder = list["priceOrder"]
+                data = getSearchResults(list)
+                self.clearProductTable()
+                for item in data:
+                    product = Product(item[0],item[1],item[2],item[3],item[4],item[5],item[6])
+                    self.productList[product.getId()] = product
+                    productDisplayed = item[0:6]
+                    self.trv.insert("", "end", values=productDisplayed)
+            except Exception as e:
+                print(e)
+        else: messagebox.showerror("Error","Invalid prices")
+
+    def displayAllProducts(self):
+        try:
+            data = getAllProducts()
             for item in data:
                 product = Product(item[0],item[1],item[2],item[3],item[4],item[5],item[6])
                 self.productList[product.getId()] = product
                 productDisplayed = item[0:6]
                 self.trv.insert("", "end", values=productDisplayed)
-        else: messagebox.showerror("Error","Invalid prices")
-
-    def displayAllProducts(self):
-        data = getAllProducts()
-        for item in data:
-            product = Product(item[0],item[1],item[2],item[3],item[4],item[5],item[6])
-            self.productList[product.getId()] = product
-            productDisplayed = item[0:6]
-            self.trv.insert("", "end", values=productDisplayed)
+        except Exception as e:
+            print(e)
 
     def deselectTrvItem(self,trv,type):
         if (type == "product"): self.selectedItemId = -1
@@ -666,6 +690,19 @@ class App:
             trv.selection_remove(item)
 
     #---------------- Bill methods ----------------
+
+    def generateBill(self):
+        #create a text file with name = bill id
+        if (self.selectedBillId == -1):
+            messagebox.showerror("Error","Select a bill first!")
+            return
+        txt = self.billText.get("1.0",END)
+        path = "./bills/"
+        fileName = "bill#"+str(self.selectedBillId)+".txt"
+        file = open(os.path.join(path, fileName),"w")
+        file.write(txt)
+        file.close()
+        messagebox.showinfo("Success","Bill generated with name = "+fileName)
 
     def initBill(self, bill=None):
         self.billText.config(state=NORMAL)
@@ -685,28 +722,34 @@ class App:
                 name,quantity,price = product[0],product[1],product[2]
                 self.billText.insert(END,f"{name}".ljust(25) + f"{quantity}".ljust(10) + f"{price}".rjust(10) + "\n")
                 totalPrice += price * quantity
-        self.billText.insert(END,"\nTotal price:".ljust(25) + f"{totalPrice}".rjust(21) + "\n")
+        self.billText.insert(END,"\nTotal price($):".ljust(25) + f"{totalPrice}".rjust(21) + "\n")
         self.billText.config(state=DISABLED)
 
     def displayBillSearchResults(self):
-        res = self.getBillSearchField()
-        data = getBillSearchResults(res)
-        self.clearBillTable()
-        for item in data:
-            bill = Bill(item[0],item[1],item[2],item[3],item[4])
-            bill.setListProduct(item[5])
-            self.billList[item[0]] = bill
-            billDisplayed = item[0:3]
-            self.resultTableTrv.insert("", "end", values=billDisplayed)
+        try:
+            res = self.getBillSearchField()
+            data = getBillSearchResults(res)
+            self.clearBillTable()
+            for item in data:
+                bill = Bill(item[0],item[1],item[2],item[3],item[4])
+                bill.setListProduct(item[5])
+                self.billList[item[0]] = bill
+                billDisplayed = item[0:3]
+                self.resultTableTrv.insert("", "end", values=billDisplayed)
+        except Exception as e:
+            print(e)
 
     def displayAllBills(self):
-        data = getAllBills()
-        for item in data:
-            bill = Bill(item[0],item[1],item[2],item[3],item[4])
-            bill.setListProduct(item[5])
-            self.billList[item[0]] = bill
-            billDisplayed = item[0:3]
-            self.resultTableTrv.insert("", "end", values=billDisplayed)
+        try:
+            data = getAllBills()
+            for item in data:
+                bill = Bill(item[0],item[1],item[2],item[3],item[4])
+                bill.setListProduct(item[5])
+                self.billList[item[0]] = bill
+                billDisplayed = item[0:3]
+                self.resultTableTrv.insert("", "end", values=billDisplayed)
+        except Exception as e:
+            print(e)
 
     def clearBillTable(self):
         self.selectedBillId = -1
@@ -717,13 +760,16 @@ class App:
 
     def addBill(self):
         data = self.getBillFields()
-        if (verifyBillInfo(data)):
-            if (addBillDB(data)):
-                self.displayBillSearchResults()
-                self.textDeleteBillBtn.set("Delete bill")
-                self.textEditBillBtn.set("Edit bill")
-            else: messagebox.showerror("Error","Id already exists")
-        else: messagebox.showerror("Error","Invalid Bill")
+        try:
+            if (verifyBillInfo(data)):
+                if (addBillDB(data)):
+                    self.displayBillSearchResults()
+                    self.textDeleteBillBtn.set("Delete bill")
+                    self.textEditBillBtn.set("Edit bill")
+                else: messagebox.showerror("Error","Id already exists")
+            else: messagebox.showerror("Error","Invalid Bill")
+        except Exception as e:
+            print(e)
 
     def editBill(self):
         if (self.selectedBillId == -1):
@@ -735,14 +781,17 @@ class App:
             self.textDeleteBillBtn.set("Cancel")
         else:
             data = self.getBillFields()
-            if (verifyBillInfo(data)):
-                if editBillDB(self.selectedBillId,data):
-                    self.displayBillSearchResults()
-                    self.setState("readonly","bill")
-                    self.textDeleteBillBtn.set("Delete bill")
-                    self.textEditBillBtn.set("Edit bill")
-                else: messagebox.showerror("Error","Id already exists")
-            else: messagebox.showerror("Error","Invalid Bill")
+            try:
+                if (verifyBillInfo(data)):
+                    if editBillDB(self.selectedBillId,data):
+                        self.displayBillSearchResults()
+                        self.setState("readonly","bill")
+                        self.textDeleteBillBtn.set("Delete bill")
+                        self.textEditBillBtn.set("Edit bill")
+                    else: messagebox.showerror("Error","Id already exists")
+                else: messagebox.showerror("Error","Invalid Bill")
+            except Exception as e:
+                print(e)
 
     def deleteBill(self):
         if (self.selectedBillId == -1):
@@ -752,9 +801,12 @@ class App:
             data = self.getBillFields()
             if (verifyBillInfo(data)):
                 #delete in db
-                deleteBillDB(self.selectedBillId)
-                self.displayBillSearchResults()
-                self.setState("normal","bill")
+                try:
+                    deleteBillDB(self.selectedBillId)
+                    self.displayBillSearchResults()
+                    self.setState("normal","bill")
+                except Exception as e:
+                    print(e)
             else: messagebox.showerror("Error","Invalid Bill")
         else:
             self.displayBill(None)
@@ -784,17 +836,20 @@ class App:
             messagebox.showerror("Error","Invalid product Id or quantity")
             return
         productId,quantity = int(productId),int(quantity)
-        product = deductProductDB(productId,quantity)
-        if (product is not None):
-            name,price = product[0],product[1]
-            #if product already exists in bill then increase quantity, else add product to bill
-            if productId in bill.getListProduct().keys():
-                bill.getListProduct()[productId][1] += int(quantity)
-            else: bill.addProduct(productId,name,quantity,price)
-            #update DB
-            updateBillProduct(self.selectedBillId,productId,bill.getListProduct()[productId][1])
-            self.initBill(bill)
-        else: messagebox.showerror("Error","Cant find product or invalid quantity")
+        try:
+            product = deductProductDB(productId,quantity)
+            if (product is not None):
+                name,price = product[0],product[1]
+                #if product already exists in bill then increase quantity, else add product to bill
+                if productId in bill.getListProduct().keys():
+                    bill.getListProduct()[productId][1] += int(quantity)
+                else: bill.addProduct(productId,name,quantity,price)
+                #update DB
+                updateBillProduct(self.selectedBillId,productId,bill.getListProduct()[productId][1])
+                self.initBill(bill)
+            else: messagebox.showerror("Error","Cant find product or invalid quantity")
+        except Exception as e:
+            print(e)
 
     def removeProductFromBill(self):
         if (self.selectedBillId == -1):
@@ -807,11 +862,14 @@ class App:
             return
         productId = int(productId)
         #if product exists in bill then remove it
-        if productId in bill.getListProduct().keys():
-            bill.getListProduct().pop(productId)
-            self.initBill(bill)
-            removeBillProduct(self.selectedBillId,productId)
-        else: messagebox.showerror("Error","Product not in bill")
+        try:
+            if productId in bill.getListProduct().keys():
+                bill.getListProduct().pop(productId)
+                self.initBill(bill)
+                removeBillProduct(self.selectedBillId,productId)
+            else: messagebox.showerror("Error","Product not in bill")
+        except Exception as e:
+            print(e)
 
     def displayBill(self, event):
         curItem = self.resultTableTrv.focus()

@@ -1,0 +1,13 @@
+Bill Id: 2
+Date: 2022-09-14
+Customer name: Zhong Xina
+
+----------------------------------------------
+Product                 Quantity        Price
+----------------------------------------------
+Arabia Dining Table      1                189
+Stinson Bar Stool        2                210
+Abra Wall Study Table    3                120
+
+Total price:                              969
+

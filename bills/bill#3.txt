@@ -1,0 +1,17 @@
+Bill Id: 3
+Date: 2022-06-22
+Customer name: Harry Maguire
+
+----------------------------------------------
+Product                 Quantity        Price
+----------------------------------------------
+Yorktown Single Bed      1               3000
+Cavendish Fabric Bed     2               2500
+Solid Wood Bookshelf     1                170
+Sirius Standing Mirror   2                130
+Arabia Dining Table      2                290
+Durwin Gaming Chair      1                260
+Abra Wall Study Table    1                310
+
+Total price($):                          9580
+
